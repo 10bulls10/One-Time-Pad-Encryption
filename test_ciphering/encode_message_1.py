@@ -3,7 +3,7 @@
 
 import secrets
 
-message_to_encode = "C:\\Users\\whits\\STUFF\\Dumpster\\projects\\vernam_1\\test_ciphering\\message_1.txt"  
+message_to_encode = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\message_1.txt"  
 
 def random_char():
     
@@ -11,9 +11,9 @@ def random_char():
 
 def encode_message(message_path, pad_count):    
     
-    cipher_pad = "C:\\Users\\whits\\STUFF\\Dumpster\\projects\\vernam_1\\test_ciphering\\cipher_pad_{}.txt"  #need a way to automate these paths
+    cipher_pad = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\cipher_pad_{}.txt"  #need a way to automate these paths
     cipher_pad = cipher_pad.format(pad_count)
-    encoded_file = "C:\\Users\\whits\\STUFF\\Dumpster\\projects\\vernam_1\\test_ciphering\\encoded_1.txt"  
+    encoded_file = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\encoded_1.txt"  
     pad_num_list = []
     ciphertext_list = []
     pre_msg_string = ''
