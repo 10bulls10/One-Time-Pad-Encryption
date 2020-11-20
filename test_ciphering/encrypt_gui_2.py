@@ -7,9 +7,9 @@ import os.path
 
 sg.theme('DarkTeal1') #I thought this one was cool
 
-encoded_file = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\encoded_1.txt"  
-cipher_pad = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\cipher_pad_1.txt" 
-message_to_encode = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\message_1.txt"  
+#encoded_file = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\encoded_1.txt"  
+#cipher_pad = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\cipher_pad_1.txt" 
+#message_to_encode = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\message_1.txt"  
 
 def generate_pad(filename):    
     number_list1 = []
@@ -25,16 +25,19 @@ def generate_pad(filename):
 def random_char():    
     return chr(secrets.randbelow(93) + 33)
 
-def encode_message(message_path, pad_path):        
+def encode_message(message_path, pad_path, encoded_path, encoded_name):        
     #cipher_pad = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\cipher_pad_{}.txt"  #need a way to automate these paths
     #cipher_pad = cipher_pad.format(pad_count)
-    encoded_file = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\encoded_1.txt"  
+    #encoded_file = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\encoded_1.txt"  
+    
     pad_num_list = []
     ciphertext_list = []
     pre_msg_string = ''
     post_msg_string = ''
     full_msg_string = ''
     remaining_chars = 992
+    
+    encoded_path += "/" + encoded_name
 
     with open(pad_path, 'r') as pad:
         pad_list = pad.read()
@@ -49,7 +52,6 @@ def encode_message(message_path, pad_path):
         raw_msg_string = msg_input.read()
 
     split_index = secrets.randbelow(remaining_chars - len(raw_msg_string)) #generate a point somewhere between message length and 996, (996 for the delimiters |#)
-    #print(split_index)
     
     while len(pre_msg_string) < split_index:
         pre_msg_string += random_char()
@@ -62,7 +64,7 @@ def encode_message(message_path, pad_path):
     for x in range(1000):
         ciphertext_list.append(ord(full_msg_string[x]) ^ pad_num_list[x]) # append character conversion of int converted ascii value of msg string index XOR bitwise operated w pad num list index
        
-    with open(encoded_file, 'w') as encoded_msg:
+    with open(encoded_path, 'w') as encoded_msg:
         for x in range(1000):
             encoded_msg.write('%d' % ciphertext_list[x])
             encoded_msg.write(' ')
@@ -101,6 +103,19 @@ def decode_message(encoded_file, cipher_pad):
     separated_msg_list = decoded_msg.rsplit("####")
     return separated_msg_list[1]
 
+def save_txt_file(name, output, path):
+    if not name:
+        name = "generic_name.txt"
+    
+    path += '/' + name
+    print(path)
+    length = len(output)
+
+    with open(path, 'w') as txt_file:
+        for x in range(length):
+            txt_file.write(output[x])
+    
+    return True
 
 #########################################################################      
 
@@ -138,7 +153,7 @@ pad_column_middle = [
 
 output_column_right = [
     [
-        sg.Text("Output (decoded msg if encoded input and vice versa)"),
+        sg.Text("Output:"),
     ],
     [ 
         sg.Button('DECODE MESSAGE (if encoded input)'),
@@ -161,11 +176,11 @@ layout = [
     ]
 ]
 
-window_1 = sg.Window("10BULLS10", layout)
+window_1 = sg.Window("10BULLS10", layout) #main window
 
-window_2_active = False
-window_3_active = False
-window_4_active = False
+window_2_active = False #Pad generation window
+window_3_active = False #decoded output window
+window_4_active = False #encoded file save window
 
 #Event Loop
 while True:
@@ -178,10 +193,8 @@ while True:
     if event_1 == "-MESSAGE_FILE-":        
             message_file = values_1["-MESSAGE_FILE-"]
 
-
     elif event_1 == "-PAD_FILE-":
-            pad_folder = values_1["-PAD_FILE-"]
-
+            pad_file = values_1["-PAD_FILE-"]
     
     elif not window_2_active and event_1 == "Generate One Time Pad(s)":
         window_2_active = True
@@ -216,72 +229,99 @@ while True:
 
     elif not window_3_active and event_1 == "DECODE MESSAGE (if encoded input)":
         window_3_active = True
-        Xor_output = "AN ERROR OCCURRED" #if this isn't modified, something broke
+        decoded_output = "AN ERROR OCCURRED" #if this isn't modified, something broke
         
         try:
-            if message_file and pad_folder:
-                Xor_output = decode_message(message_file, pad_folder)
+            if message_file and pad_file:
+                decoded_output = decode_message(message_file, pad_file)
         except:
             pass
 
         layout_3 = [
             [
-                sg.Text("The Output of the XOR operation is:")
+                sg.Text("The decoded message is:")
             ],
             [
-                sg.Multiline(Xor_output, key='-XOR_RESULT_MULTILINE-'),
+                sg.Multiline(decoded_output, key='-XOR_RESULT_MULTILINE-'),
             ],
             [
-                sg.In(size=(23, 1), enable_events=True, key="-XOR_OUTPUT_PATH-"),
-                sg.FolderBrowse("Select Folder To Save"),
+                sg.Text("Please enter a name [name.txt] for your file:")
+            ],
+            [
+                sg.In(size=(42, 1), enable_events=True, key="-DECODED_FILE_NAME-"),
+            ],
+            [
+                sg.Text("Please select a folder and hit save.")
+            ],
+            [
+                sg.In(size=(28, 1), enable_events=True, key="-DECODED_OUTPUT_PATH-"),
+                sg.FolderBrowse("Select Folder"),
+                sg.Button("Save", key="-SAVE_DECODED_MESSAGE-"),
             ],
         ]
 
         window_3 = sg.Window('10BULLS10', layout_3)
 
-    if window_3_active:        
+    while window_3_active:        
         event_3, values_3 = window_3.read()
     
         if event_3 == sg.WIN_CLOSED or event_3 == 'Exit':
             window_3_active = False
             window_3.close()
+
+        if event_3 == "-DECODED_FILE_NAME-":
+            decoded_file_name = values_3["-DECODED_FILE_NAME-"]
+        
+        if event_3 == "-SAVE_DECODED_MESSAGE-":
+            if not decoded_file_name:
+                sg.popup("Please enter a name for the file")
+            
+            decoded_file_path = values_3["-DECODED_OUTPUT_PATH-"]
+            save_txt_file(decoded_file_name, decoded_output, decoded_file_path)
+            window_3_active = False
+            window_3.close()
     
-    elif not window_4_active and event_1 == "ENCODE MESSAGE (if decoded input)":
+    if not window_4_active and event_1 == "ENCODE MESSAGE (if decoded input)":
         window_4_active = True
         Xor_output = "AN ERROR OCCURRED" #if this isn't modified, something broke
-        
-        try:
-            if message_file and pad_folder:
-                Xor_output = encode_message(message_file, pad_folder)
-        except:
-            pass
 
         layout_4 = [
             [
-                sg.Text("Here is your encoded message:")
+                sg.Text("Please enter a name for your encoded file [name.txt]:")
             ],
             [
-                sg.Multiline(Xor_output, key='-XOR_RESULT_MULTILINE-'),
+                sg.In(size=(34, 1), enable_events=True, key="-ENCODED_OUTPUT_NAME-"),
             ],
             [
-                sg.In(size=(23, 1), enable_events=True, key="-XOR_OUTPUT_PATH-"),
-                sg.FolderBrowse("Select Folder To Save"),
+                sg.Text("Please select a folder in which to save the encoded message:")
+            ],
+            [
+                sg.In(size=(34, 1), enable_events=True, key="-ENCODED_OUTPUT_PATH-"),
+                sg.FolderBrowse("Select Folder to Save"),
+                sg.Button("Save", key="-ENCODED_SAVE-")
             ],
         ]
 
         window_4 = sg.Window('10BULLS10', layout_4)    
     
-
-    if window_4_active:        
+    while window_4_active:        
         event_4, values_4 = window_4.read()
     
         if event_4 == sg.WIN_CLOSED or event_4 == 'Exit':
             window_4_active = False
             window_4.close()
 
-    
-    
-    elif event_1 == "Feature Test":
+        elif event_4 == "-ENCODED_OUTPUT_NAME-":
+            name_for_encoded_file = values_4["-ENCODED_OUTPUT_NAME-"]
+
+        elif event_4 == "-ENCODED_SAVE-":
+                encoded_path = values_4["-ENCODED_OUTPUT_PATH-"]
+                Xor_output = encode_message(message_file, pad_file, encoded_path, name_for_encoded_file)
+                sg.popup_scrolled(Xor_output, title="ENCODED MESSAGE",)
+                window_4_active = False
+                window_4.close()
+
+    if event_1 == "Feature Test":
         sg.popup_scrolled("what")
 
 window_1.close()
