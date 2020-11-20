@@ -2,7 +2,8 @@
 #this is the file that combines the pad generation and encode and decode prototypes in one program
 
 import secrets
-
+import PySimpleGUI as sg 
+import os.path
 
 encoded_file = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\encoded_1.txt"  
 cipher_pad = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\cipher_pad_1.txt" 
@@ -101,6 +102,9 @@ def decode_message(encoded_file, cipher_pad):
 
     separated_msg_list = decoded_msg.rsplit("####")
     return separated_msg_list[1]
+
+
+#########################################################################      
 
 generate_pad(cipher_pad)
 

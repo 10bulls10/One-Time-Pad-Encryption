@@ -5,6 +5,7 @@ import os.path
 
 # First the window layout in 2 columns
 
+
 file_list_column = [
     [
         sg.Text("Image Folder"),
