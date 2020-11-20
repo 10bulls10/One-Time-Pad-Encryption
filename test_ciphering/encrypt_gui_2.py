@@ -119,14 +119,6 @@ def save_txt_file(name, output, path):
 
 #########################################################################      
 
-#generate_pad(cipher_pad)
-
-#encode_message(message_to_encode, cipher_pad) #eventually indices on the pads will increment somehow, also need to overwrite prev pads
-
-#print(decode_message(encoded_file, cipher_pad)) #since the delimiters are unique (7.4 million to one), 
-# the separated list should have 3 elements, before delimiter, msg, and after delimiter. therefore msg is index 1
-
-#########################################################################
 
 message_column_left = [
     [
