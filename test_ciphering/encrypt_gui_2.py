@@ -11,16 +11,26 @@ sg.theme('DarkTeal1') #I thought this one was cool
 #cipher_pad = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\cipher_pad_1.txt" 
 #message_to_encode = "C:\\Users\\whits\\STUFF\\Local_Env\\projects\\vernam_1\\Pythonense\\test_ciphering\\message_1.txt"  
 
-def generate_pad(filename):    
-    number_list1 = []
+def generate_pad(path, count_str): #since it's from the gui input, count comes in as a string
     
-    for x in range(1000):
-        number_list1.append(secrets.randbelow(93))
+    count = int(count_str)
+    path += "/cipher_pad_"
+    
+    for q in range(count):
+        number_list1 = []
 
-    with open(filename, 'w') as cipher_output:
         for x in range(1000):
-            cipher_output.write('%d' % number_list1[x])
-            cipher_output.write(' ')
+            number_list1.append(secrets.randbelow(93))
+
+        count_ext = "{}.txt"
+        count_ext = count_ext.format(q + 1)
+        print("iter")
+        curr_path = path + count_ext
+        
+        with open(curr_path, 'w') as cipher_output:
+            for x in range(1000):
+                cipher_output.write('%d' % number_list1[x])
+                cipher_output.write(' ')
         
 def random_char():    
     return chr(secrets.randbelow(93) + 33)
@@ -207,19 +217,37 @@ while True:
             ],
             [
                 sg.In(size=(23, 1), enable_events=True, key="-PAD_NUM-"),
-                sg.Button("Generate Pads")
+                sg.Button("Generate Pads", key="-GEN_PADS-")
             ],
         ]
         window_2 = sg.Window('10BULLS10 - TESTING ONLY', layout_2)
     
-    if window_2_active:        
+    new_pad_path = "ERROR"
+    new_pad_num = 3.14
+    while window_2_active:        
         event_2, values_2 = window_2.read()
-    
+        
         if event_2 == sg.WIN_CLOSED or event_2 == 'Exit':
             window_2_active = False
             window_2.close()
 
-    elif not window_3_active and event_1 == "DECODE MESSAGE (if encoded input)":
+        if event_2 == "-GENERATE_PAD_PATH-":
+            new_pad_path = values_2["-GENERATE_PAD_PATH-"]
+        
+        if event_2 == "-PAD_NUM-":
+            new_pad_num = values_2["-PAD_NUM-"]
+        
+        elif event_2 == "-GEN_PADS-":
+            
+            if new_pad_path == "ERROR" and new_pad_num == 3.14:
+                sg.popup("Please choose a folder and number of pad(s) to generate.")
+            
+            else:
+                generate_pad(new_pad_path, new_pad_num)
+                window_2_active = False
+                window_2.close()
+
+    if not window_3_active and event_1 == "DECODE MESSAGE (if encoded input)":
         window_3_active = True
         decoded_output = "AN ERROR OCCURRED" #if this isn't modified, something broke
         
