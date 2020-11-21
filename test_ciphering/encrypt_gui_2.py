@@ -22,16 +22,28 @@ def generate_pad(path, count_str): #since it's from the gui input, count comes i
         for x in range(1000):
             number_list1.append(secrets.randbelow(93))
 
-        count_ext = "{}.txt"
-        count_ext = count_ext.format(q + 1)
+        count_exten = "{}.txt"
+        count_exten = count_exten.format(q + 1)
         print("iter")
-        curr_path = path + count_ext
+        curr_path = path + count_exten
         
         with open(curr_path, 'w') as cipher_output:
             for x in range(1000):
                 cipher_output.write('%d' % number_list1[x])
                 cipher_output.write(' ')
         
+def kill_pad(path):
+    number_list = []
+    print("destroy pad")
+
+    for x in range(1000):
+            number_list.append(secrets.randbelow(93))
+    
+    with open(path, 'w+') as cipher_output:
+            for x in range(1000):
+                cipher_output.write('%d' % number_list[x])
+                cipher_output.write(' ')        
+    return 1
 def random_char():    
     return chr(secrets.randbelow(93) + 33)
 
@@ -163,6 +175,9 @@ output_column_right = [
     [
         sg.Button('ENCODE MESSAGE (if decoded input)'),
     ],
+    [
+        sg.Checkbox("Automatically overwrite pad after use", default=False, enable_events=True, key="-DESTROY_PAD_CHECK-")
+    ],
 ]
 
 layout = [
@@ -174,7 +189,7 @@ layout = [
         sg.Column(output_column_right),
     ],
     [
-        sg.Button('Exit'), sg.Button('Feature Test'),
+        sg.Button('Exit'), sg.Button('Instructions'),
     ]
 ]
 
@@ -183,6 +198,7 @@ window_1 = sg.Window("10BULLS10", layout) #main window
 window_2_active = False #Pad generation window
 window_3_active = False #decoded output window
 window_4_active = False #encoded file save window
+destroy_pad = False
 
 #Event Loop
 while True:
@@ -198,7 +214,15 @@ while True:
     elif event_1 == "-PAD_FILE-":
             pad_file = values_1["-PAD_FILE-"]
     
-    elif not window_2_active and event_1 == "Generate One Time Pad(s)":
+    if values_1["-DESTROY_PAD_CHECK-"]:
+        print("here")
+        destroy_pad = True
+
+    else:
+        print("not here")
+        destroy_pad = False
+    
+    if not window_2_active and event_1 == "Generate One Time Pad(s)":
         window_2_active = True
      
         layout_2 = [
@@ -223,7 +247,7 @@ while True:
         window_2 = sg.Window('10BULLS10 - TESTING ONLY', layout_2)
     
     new_pad_path = "ERROR"
-    new_pad_num = 3.14
+    new_pad_num = 3.14 #number should be an int, (and in conversion would be floored, so if it reads 3.14 then its invalid)
     while window_2_active:        
         event_2, values_2 = window_2.read()
         
@@ -254,6 +278,9 @@ while True:
         try:
             if message_file and pad_file:
                 decoded_output = decode_message(message_file, pad_file)
+                print(pad_file)
+                print(int(pad_file[-5]))
+
         except:
             pass
 
@@ -298,6 +325,7 @@ while True:
             
             decoded_file_path = values_3["-DECODED_OUTPUT_PATH-"]
             save_txt_file(decoded_file_name, decoded_output, decoded_file_path)
+
             window_3_active = False
             window_3.close()
     
@@ -341,8 +369,25 @@ while True:
                 window_4_active = False
                 window_4.close()
 
-    if event_1 == "Feature Test":
-        sg.popup_scrolled("what")
+    if event_1 == "Instructions":
+        sg.popup_scrolled("""
+To decrypt a message: 
+Select a message. You must know which pad was used to encrypt it.
+Select that pad (should be numbered, such as cipher_pad_1.txt ) 
+Hit the DECODE button, which will activate a popup window.
+If you wish to save the decoded message, select a folder, choose a name, and hit Save.
+To encrypt a message:
+Select a message (plain english .txt file). 
+Select a pad (the person decrypting it will need a copy)
+Hit the ENCODE button. Choose a folder in which to save the encoded message and a name, and hit Save.
+To generate pads: 
+Hit the Generate One Time Pad(s) button.
+Select a folder in which to save your pads. 
+Select a number of pad(s) to generate (says 1-100 but can be any number, though huge numbers could cause you problems). The pads will appear in that folder, labeled cipher_pad_[number].txt.
+IMPORTANT NOTES:
+This software is in no way secure. AT ALL. 
+The protocol used for generating pads is the Python Secrets library, which relies on your OS for randomness. IT IS NOT RANDOM ENOUGH.
+This thing saves .txt files on your hard drive, if anything can read or track them, then the messages you send are not secure. If pads are not destroyed, messages are not secure, if pads are used more then once pads are not secure. As of November 2020, nothing about this program should be considered secure.""", title="Instructions")
 
 window_1.close()
 
