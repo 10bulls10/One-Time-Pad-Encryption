@@ -215,11 +215,9 @@ while True:
             pad_file = values_1["-PAD_FILE-"]
     
     if values_1["-DESTROY_PAD_CHECK-"]:
-        print("here")
         destroy_pad = True
 
     else:
-        print("not here")
         destroy_pad = False
     
     if not window_2_active and event_1 == "Generate One Time Pad(s)":
@@ -278,8 +276,6 @@ while True:
         try:
             if message_file and pad_file:
                 decoded_output = decode_message(message_file, pad_file)
-                print(pad_file)
-                print(int(pad_file[-5]))
 
         except:
             pass
@@ -325,7 +321,11 @@ while True:
             
             decoded_file_path = values_3["-DECODED_OUTPUT_PATH-"]
             save_txt_file(decoded_file_name, decoded_output, decoded_file_path)
-
+            
+            if destroy_pad == True:
+                for x in range(10):
+                    kill_pad(pad_file)
+            
             window_3_active = False
             window_3.close()
     
@@ -366,6 +366,11 @@ while True:
                 encoded_path = values_4["-ENCODED_OUTPUT_PATH-"]
                 Xor_output = encode_message(message_file, pad_file, encoded_path, name_for_encoded_file)
                 sg.popup_scrolled(Xor_output, title="ENCODED MESSAGE",)
+                
+                if destroy_pad == True:
+                    for x in range(10):
+                        kill_pad(pad_file)
+                
                 window_4_active = False
                 window_4.close()
 
